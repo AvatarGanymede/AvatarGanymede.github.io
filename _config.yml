@@ -98,9 +98,9 @@ friends: [
         href: "https://github.com/leftering/"
     },{
         title: "Ydream",
-        href: "https://ydreamw.github.io/"
-    },{
-        title: "♥",
-        href: "/love/love.html"
+    #     href: "https://ydreamw.github.io/"
+    # },{
+    #     title: "♥",
+    #     href: "/love/love.html"
     }
 ]
