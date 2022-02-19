@@ -639,7 +639,6 @@ window.onload = function(){
 	addSound("step","audio/step.mp3");
 	addSound("unlock","audio/unlock.mp3");
 	addSound("error","audio/error.mp3");
-	addSound("bgm", "audio/bgm.mp3");
 
 	onLoadAssets(function(){
 
