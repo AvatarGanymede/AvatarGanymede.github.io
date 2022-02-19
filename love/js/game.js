@@ -803,9 +803,10 @@ function iHeartYou(){
 	// After 9 seconds, swipe down to CREDITS.
 	// No replay. Fuck it.
 	setTimeout(function(){
-		window.location.href="https://avatarganymede.github.io/love/";
+		createjs.Sound.play("bgm");
+		history.replaceState({ path: "https://avatarganymede.github.io/love/" }, null, "https://avatarganymede.github.io/love/");
+		// window.location.href="https://avatarganymede.github.io/home/";
 	}, 9000)
-	createjs.Sound.play("bgm");
 }
 
 var rewindFrame = 0;
