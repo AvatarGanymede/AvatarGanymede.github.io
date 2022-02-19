@@ -194,7 +194,6 @@ function Level(config,isIntro){
 			},
 			keyCollected: self.keyCollected
 		};
-
 		self.frames.push(frame);
 	}
 
@@ -221,7 +220,6 @@ function Level(config,isIntro){
 
 		self.NO_CLOCK = true;
 		self.draw();
-
 	}
 
 	self.clear = function(){
@@ -292,7 +290,6 @@ function Clock(countdown,level){
 		var sy = sh*Math.floor((f*sw)/images.clock.width);
 		ctx.drawImage(images.clock, sx,sy,sw,sh, -30,-30,60,60);
 		ctx.restore();
-
 	};
 
 }
@@ -690,7 +687,9 @@ window.onload = function(){
 			}else if(STAGE==2){
 
 				rewindLevel.playbackFrame(rewindFrame);
-				rewindFrame--;
+				if(nextFrame)
+					rewindFrame--;
+				nextFrame = !nextFrame;
 				if(rewindFrame<0){
 					CURRENT_LEVEL--;
 					if(CURRENT_LEVEL>=0){
@@ -715,16 +714,13 @@ window.onload = function(){
 					if(CURRENT_LEVEL<LEVEL_CONFIG.length){
 						startPlayback();
 					}else{
-
 						document.getElementById("replay_text").style.display = "none";
 						iHeartYou();
 						STAGE = 4;
 
 					}
 				}
-
 				frameDirty = false;
-
 			}
 
 		}
@@ -765,10 +761,11 @@ function next(){
 		STAGE = 2;
 		CURRENT_LEVEL = LEVEL_CONFIG.length - 1;
 		startRewind();
-		var totalFrames;
-		for (var i=0;i<LEVEL_CONFIG.length;i++)
+		var totalFrames=0;
+		for (var i=0;i<LEVEL_CONFIG.length;i++){
 			totalFrames += levelObjects[i].frames.length;
-		
+		}
+			
 		var totalRewindTime = totalFrames/60;
 		var extraTime = 6600 - totalRewindTime*1000;
 		if(extraTime<0){
@@ -803,17 +800,17 @@ function iHeartYou(){
 	// After 9 seconds, swipe down to CREDITS.
 	// No replay. Fuck it.
 	setTimeout(function(){
-		createjs.Sound.play("bgm");
-		history.replaceState({ path: "https://avatarganymede.github.io/love/" }, null, "https://avatarganymede.github.io/love/");
-		// window.location.href="https://avatarganymede.github.io/home/";
+		window.location.href = "https://avatarganymede.github.io/love/";
 	}, 9000)
 }
 
 var rewindFrame = 0;
 var rewindLevel = null;
+var nextFrame;
 function startRewind(){
 	rewindLevel = levelObjects[CURRENT_LEVEL];
 	rewindFrame = rewindLevel.frames.length-1;
+	nextFrame = true;
 }
 function startPlayback(){
 	rewindLevel = levelObjects[CURRENT_LEVEL];
@@ -928,7 +925,7 @@ window.LEVEL_CONFIG = [
 		semisemicles: [],
 		rects: [],
 		// SUPER HACK - for level 2, change timer so it's impossible to beat if you go BACKWARDS.
-		countdown: 200
+		countdown: 130
 	},
 
 	// U
