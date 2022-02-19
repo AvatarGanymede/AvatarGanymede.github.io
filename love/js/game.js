@@ -642,6 +642,7 @@ window.onload = function(){
 	addSound("step","audio/step.mp3");
 	addSound("unlock","audio/unlock.mp3");
 	addSound("error","audio/error.mp3");
+	addSound("bgm", "audio/bgm.mp3");
 
 	onLoadAssets(function(){
 
@@ -804,6 +805,7 @@ function iHeartYou(){
 	setTimeout(function(){
 		window.location.href="https://avatarganymede.github.io/love/";
 	}, 9000)
+	createjs.Sound.play("bgm");
 }
 
 var rewindFrame = 0;
