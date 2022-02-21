@@ -102,8 +102,8 @@ friends: [
     },{
         title: "Qi Zhang",
         href: "https://cheungki.github.io/"
-    },{
-        title: "♥",
-        href: "/love/love.html"
+    # },{
+    #     title: "♥",
+    #     href: "/love/love.html"
     }
 ]
