@@ -686,9 +686,9 @@ window.onload = function(){
 			}else if(STAGE==2){
 
 				rewindLevel.playbackFrame(rewindFrame);
-				if(nextFrame)
+				//if(nextFrame)
 					rewindFrame--;
-				nextFrame = !nextFrame;
+				//nextFrame = !nextFrame;
 				if(rewindFrame<0){
 					CURRENT_LEVEL--;
 					if(CURRENT_LEVEL>=0){
@@ -805,11 +805,11 @@ function iHeartYou(){
 
 var rewindFrame = 0;
 var rewindLevel = null;
-var nextFrame;
+//var nextFrame;
 function startRewind(){
 	rewindLevel = levelObjects[CURRENT_LEVEL];
 	rewindFrame = rewindLevel.frames.length-1;
-	nextFrame = true;
+	//nextFrame = true;
 }
 function startPlayback(){
 	rewindLevel = levelObjects[CURRENT_LEVEL];
