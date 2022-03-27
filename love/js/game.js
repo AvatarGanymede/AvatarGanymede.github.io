@@ -868,9 +868,9 @@ window.LEVEL_CONFIG = [
 	// J
 	{
 		canvas:document.getElementById("canvas_2"),
-		player:{ x:114, y:83 },
-		door:{ x:195, y:203 },
-		key:{ x:150, y:259 },
+		player:{ x:186, y:83 },
+		door:{ x:105, y:203 },
+		key:{ x:150, y:250 },
 		circles: [],
 		semisemicles: [
 			{x:150,y:215,radius:22,start:0,end:1.0}
