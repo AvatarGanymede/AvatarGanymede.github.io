@@ -852,39 +852,40 @@ window.INTRO_LEVEL = {
 };
 
 window.LEVEL_CONFIG = [
-	// C
+	// L
 	{
 		canvas:document.getElementById("canvas_1"),
-		player:{ x:150, y:50 },
-		door:{ x:227, y:270 },
-		key:{ x:38, y:170 },
-		circles: [
-			{x:150,y:150,radius:100}
-		],
+		player:{ x:78, y:83 },
+		door:{ x:230, y:282 },
+		key:{ x:81, y:259 },
+		circles: [],
 		semisemicles: [],
-		rects: [],
+		rects: [
+			{x:107,y:59,w:86,h:183}
+		],
 		countdown:90
 	},
-	// Z
+	// J
 	{
 		canvas:document.getElementById("canvas_2"),
-		player:{ x:35, y:70 },
-		door:{ x:249, y:286 },
-		key:{ x:130, y:175 },
+		player:{ x:114, y:83 },
+		door:{ x:195, y:203 },
+		key:{ x:150, y:259 },
 		circles: [],
 		semisemicles: [
-			{x:0,y:75,radius:142,start:0,end:0.5},
-			{x:300,y:220,radius:142,start:0.5,end:1}
+			{x:150,y:215,radius:22,start:0,end:1.0}
 		],
-		rects: [],
+		rects: [
+			{x:128,y:64,w:44,h:150}
+		],
 		countdown:150
 	},
-	// Z
+	// L
 	{
 		canvas:document.getElementById("canvas_3"),
-		player:{ x:150, y:172 },
+		player:{ x:150, y:63 },
 		door:{ x:260, y:287 },
-		key:{ x:40, y:77 },
+		key:{ x:150, y:262 },
 		circles: [],
 		semisemicles: [],
 		rects: [
@@ -924,7 +925,7 @@ window.LEVEL_CONFIG = [
 		semisemicles: [],
 		rects: [],
 		// SUPER HACK - for level 2, change timer so it's impossible to beat if you go BACKWARDS.
-		countdown: 130
+		countdown: 150
 	},
 
 	// U
