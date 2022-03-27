@@ -868,7 +868,7 @@ window.LEVEL_CONFIG = [
 	// J
 	{
 		canvas:document.getElementById("canvas_2"),
-		player:{ x:186, y:83 },
+		player:{ x:195, y:75 },
 		door:{ x:105, y:203 },
 		key:{ x:150, y:250 },
 		circles: [],
