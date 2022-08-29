@@ -57,6 +57,7 @@ kramdown:
 # Gitalk
 gitalk:
   enable: true    #是否开启Gitalk评论
+  proxy: /github/login/oauth/access_token
   clientID: 6a1e64128d0664f72222                            #生成的clientID
   clientSecret: d3fd5538eed8cf89bf8a5edec7d97f6eccf8e227    #生成的clientSecret
   repo: AvatarGanymede.github.io    #仓库名称
