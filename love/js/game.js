@@ -623,7 +623,7 @@ function Peep(config,level){
 window.requestAnimFrame = window.requestAnimationFrame ||
 	window.webkitRequestAnimationFrame ||
 	window.mozRequestAnimationFrame ||
-	function(callback){ window.setTimeout(callback, 1000/60); };
+	function(callback){ window.setTimeout(callback, 1000/30); };
 
 window.onload = function(){
 
@@ -656,20 +656,54 @@ window.onload = function(){
 					level.update();
 					frameDirty = true;
 				}
-			}else if(STAGE==2||STAGE==3){
-				frameDirty = true;
-			}
+			}else if(STAGE==2){
+				// Rewind: 在update中更新帧索引，保持30Hz速度
+				// 使用累积器处理小数速度
+				rewindSpeedAccumulator += rewindSpeed;
+				var framesToSkip = Math.floor(rewindSpeedAccumulator);
+				rewindSpeedAccumulator -= framesToSkip;
+				rewindFrame -= framesToSkip;
+				
+				if(rewindFrame<0){
+					CURRENT_LEVEL--;
+					if(CURRENT_LEVEL>=0){
+						startRewind();
+					}else{
+						STAGE = 3;
+						CURRENT_LEVEL = 0;
+						startPlayback();
 
-			if(STAGE==3 && !window.HAS_PLAYED_JAZZ){
+						document.getElementById("rewind_text").style.display = 'none';
+						document.getElementById("replay_text").style.display = "block";
 
-				if(STAGE==3 && CURRENT_LEVEL==LEVEL_CONFIG.length - 2){
-					var framesLeft = (rewindLevel.frames.length-rewindFrame) + levelObjects[LEVEL_CONFIG.length - 1].frames.length;
-					if(framesLeft<135){
-						window.HAS_PLAYED_JAZZ = true;
-						createjs.Sound.play("jazz");
 					}
 				}
+				frameDirty = true;
+			}else if(STAGE==3){
+				// Replay: 在update中更新帧索引，保持30Hz速度
+				rewindFrame++;
+				if(rewindFrame>=rewindLevel.frames.length){
+					CURRENT_LEVEL++;
+					if(CURRENT_LEVEL<LEVEL_CONFIG.length){
+						startPlayback();
+					}else{
+						document.getElementById("replay_text").style.display = "none";
+						iHeartYou();
+						STAGE = 4;
 
+					}
+				}
+				frameDirty = true;
+
+				if(!window.HAS_PLAYED_JAZZ){
+					if(CURRENT_LEVEL==LEVEL_CONFIG.length - 2){
+						var framesLeft = (rewindLevel.frames.length-rewindFrame) + levelObjects[LEVEL_CONFIG.length - 1].frames.length;
+						if(framesLeft<135){
+							window.HAS_PLAYED_JAZZ = true;
+							createjs.Sound.play("jazz");
+						}
+					}
+				}
 			}
 
 		}
@@ -685,40 +719,14 @@ window.onload = function(){
 
 			}else if(STAGE==2){
 
+				// 只负责绘制，不更新帧索引
 				rewindLevel.playbackFrame(rewindFrame);
-				//if(nextFrame)
-					rewindFrame--;
-				//nextFrame = !nextFrame;
-				if(rewindFrame<0){
-					CURRENT_LEVEL--;
-					if(CURRENT_LEVEL>=0){
-						startRewind();
-					}else{
-						STAGE = 3;
-						CURRENT_LEVEL = 0;
-						startPlayback();
-
-						document.getElementById("rewind_text").style.display = 'none';
-						document.getElementById("replay_text").style.display = "block";
-
-					}
-				}
+				frameDirty = false;
 
 			}else if(STAGE==3){
 
+				// 只负责绘制，不更新帧索引
 				rewindLevel.playbackFrame(rewindFrame);
-				rewindFrame++;
-				if(rewindFrame>=rewindLevel.frames.length){
-					CURRENT_LEVEL++;
-					if(CURRENT_LEVEL<LEVEL_CONFIG.length){
-						startPlayback();
-					}else{
-						document.getElementById("replay_text").style.display = "none";
-						iHeartYou();
-						STAGE = 4;
-
-					}
-				}
 				frameDirty = false;
 			}
 
@@ -764,12 +772,19 @@ function next(){
 		for (var i=0;i<LEVEL_CONFIG.length;i++){
 			totalFrames += levelObjects[i].frames.length;
 		}
-			
-		var totalRewindTime = totalFrames/60;
-		var extraTime = 6600 - totalRewindTime*1000;
-		if(extraTime<0){
+
+		var totalRewindTime = totalFrames/30;
+		var extraTime = 6900 - totalRewindTime*1000;
+		
+		// 如果总时间超过 6900 ms，计算加速因子使时间刚好在 6900 ms内
+		if(extraTime < 0){
+			// 在 6900 ms内可以执行的update次数（30Hz）
+			var maxUpdates = 6900 / 1000 * 30; // 6900 / (1000/30)
+			// 每次update需要减的帧数
+			rewindSpeed = totalFrames / maxUpdates;
 			createjs.Sound.play("rewind");
 		}else{
+			rewindSpeed = 1; // 正常速度，每次减1帧
 			createjs.Sound.play("rewind","none",0,extraTime);
 		}
 
@@ -805,10 +820,13 @@ function iHeartYou(){
 
 var rewindFrame = 0;
 var rewindLevel = null;
+var rewindSpeed = 1; // 每次update减的帧数，用于加速rewind
+var rewindSpeedAccumulator = 0; // 累积小数部分
 //var nextFrame;
 function startRewind(){
 	rewindLevel = levelObjects[CURRENT_LEVEL];
 	rewindFrame = rewindLevel.frames.length-1;
+	rewindSpeedAccumulator = 0; // 重置累积器
 	//nextFrame = true;
 }
 function startPlayback(){
