@@ -532,26 +532,32 @@ function Peep(config,level){
 
 		for(var i=0;i<level.rects.length;i++){
 			var rect = level.rects[i];
-			// Hit circle?
+			// Check if player is within rectangle
 			var is_within_x = self.x>rect.x&&self.x<rect.x+rect.w;
-			var is_within_y = self.y>rect.y&&self.y<rect.y+rect.h
+			var is_within_y = self.y>rect.y&&self.y<rect.y+rect.h;
 			var is_within = is_within_x&&is_within_y;
 			if(is_within){
-				if(i==0){
-					if(self.x<rect.x+rect.w&&rect.x+rect.w-self.x<5)
-						self.x += rect.x+rect.w-self.x+5
-					else if(self.y>rect.y&&self.y-rect.y<5)
-						self.y -= self.y-rect.y+5
-					else if(rect.y+rect.h>self.y&&rect.y+rect.h-self.y<5)
-						self.y += rect.y+rect.h-self.y+5;
-				}
-				else if(i==1){
-					if(self.y>rect.y&&self.y-rect.y<5)
-						self.y-=self.y-rect.y+5;
-					if(self.x>rect.x&&self.x-rect.x<5)
-						self.x-=self.x-rect.x+5;
-					if(rect.y+rect.h>self.y&&rect.y+rect.h-self.y<5)
-						self.y+=rect.y+rect.h-self.y+5;
+				// Calculate distances to each edge
+				var distLeft = self.x - rect.x;
+				var distRight = rect.x + rect.w - self.x;
+				var distTop = self.y - rect.y;
+				var distBottom = rect.y + rect.h - self.y;
+				
+				// Find the closest edge and push player out
+				var minDist = Math.min(distLeft, distRight, distTop, distBottom);
+				
+				if(minDist == distLeft){
+					// Push left
+					self.x = rect.x - 5;
+				}else if(minDist == distRight){
+					// Push right
+					self.x = rect.x + rect.w + 5;
+				}else if(minDist == distTop){
+					// Push up
+					self.y = rect.y - 5;
+				}else if(minDist == distBottom){
+					// Push down
+					self.y = rect.y + rect.h + 5;
 				}
 			}
 		}
