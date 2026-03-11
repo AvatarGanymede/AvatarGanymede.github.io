@@ -62,6 +62,7 @@ header-img: "img/post-bg-rwd.jpg"
         repo: '{{ site.gitalk.repo }}',
         owner: '{{ site.gitalk.owner }}',
         admin: ['{{ site.gitalk.admin }}'],
+        number: 3, // 直接绑定到 Gittalk To My Love（#3）
         createIssueManually: {{site.gitalk.createIssueManually}},
         distractionFreeMode: {{site.gitalk.distractionFreeMode}},
         id: md5(location.pathname)
