@@ -1,0 +1,19 @@
+{
+  "name": "cg-lab",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/use-dev-index.mjs && vite",
+    "build": "node scripts/use-dev-index.mjs && tsc && vite build && node scripts/apply-pages.mjs",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "typescript": "~6.0.2",
+    "vite": "^8.1.1"
+  },
+  "dependencies": {
+    "lil-gui": "^0.21.0",
+    "three": "^0.185.1"
+  }
+}
