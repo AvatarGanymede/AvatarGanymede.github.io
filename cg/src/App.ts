@@ -1,7 +1,9 @@
 import {
   Clock,
+  MOUSE,
   PerspectiveCamera,
   SRGBColorSpace,
+  Vector3,
   WebGLRenderer,
 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
@@ -9,6 +11,9 @@ import { FeatureManager } from './core/FeatureManager';
 import { SceneManager } from './core/SceneManager';
 import type { RenderContext } from './core/types';
 import { ForwardPlusFeature } from './features/forward-plus/ForwardPlusFeature';
+
+const MOVE_SPEED = 8;
+const MOVE_KEYS = new Set(['KeyW', 'KeyA', 'KeyS', 'KeyD']);
 
 export class App {
   private renderer: WebGLRenderer;
@@ -21,6 +26,10 @@ export class App {
   private width = 1;
   private height = 1;
   private latestCtx!: RenderContext;
+  private pressedKeys = new Set<string>();
+  private readonly moveForward = new Vector3();
+  private readonly moveRight = new Vector3();
+  private readonly moveOffset = new Vector3();
 
   private loadingEl: HTMLElement;
   private loadingBar: HTMLElement;
@@ -41,7 +50,7 @@ export class App {
         <div class="hud">
           <h1>图形学学习平台</h1>
           <p id="hud-pipeline">当前：默认基础渲染管线</p>
-          <p class="muted">拖拽旋转 · 滚轮缩放 · 右键平移 · 右侧 GUI 开关 Feature</p>
+          <p class="muted">WASD 移动 · 滚轮缩放 · 右键旋转 · 右侧 GUI 开关 Feature</p>
         </div>
       </div>
     `;
@@ -70,9 +79,22 @@ export class App {
     this.controls.maxPolarAngle = Math.PI * 0.49;
     this.controls.minDistance = 1;
     this.controls.maxDistance = 40;
+    // 右键旋转、滚轮缩放；平移改由 WASD 负责
+    this.controls.enablePan = false;
+    this.controls.mouseButtons = {
+      LEFT: null as unknown as MOUSE,
+      MIDDLE: MOUSE.DOLLY,
+      RIGHT: MOUSE.ROTATE,
+    };
 
     this.onResize = this.onResize.bind(this);
+    this.onKeyDown = this.onKeyDown.bind(this);
+    this.onKeyUp = this.onKeyUp.bind(this);
+    this.onContextMenu = this.onContextMenu.bind(this);
     window.addEventListener('resize', this.onResize);
+    window.addEventListener('keydown', this.onKeyDown);
+    window.addEventListener('keyup', this.onKeyUp);
+    this.renderer.domElement.addEventListener('contextmenu', this.onContextMenu);
     this.onResize();
 
     this.latestCtx = this.makeContext(0);
@@ -114,7 +136,9 @@ export class App {
 
   private tick = (): void => {
     this.raf = requestAnimationFrame(this.tick);
-    const time = this.clock.getElapsedTime();
+    const delta = this.clock.getDelta();
+    const time = this.clock.elapsedTime;
+    this.updateMovement(delta);
     this.controls.update();
 
     this.latestCtx = this.makeContext(time);
@@ -129,11 +153,56 @@ export class App {
     this.updateHud();
   };
 
+  /** WASD：沿水平面相对朝向平移相机与 orbit target */
+  private updateMovement(delta: number): void {
+    if (this.pressedKeys.size === 0) return;
+
+    this.camera.getWorldDirection(this.moveForward);
+    this.moveForward.y = 0;
+    if (this.moveForward.lengthSq() < 1e-8) {
+      this.moveForward.set(0, 0, -1);
+    } else {
+      this.moveForward.normalize();
+    }
+    this.moveRight.crossVectors(this.camera.up, this.moveForward).normalize();
+
+    this.moveOffset.set(0, 0, 0);
+    if (this.pressedKeys.has('KeyW')) this.moveOffset.add(this.moveForward);
+    if (this.pressedKeys.has('KeyS')) this.moveOffset.sub(this.moveForward);
+    if (this.pressedKeys.has('KeyD')) this.moveOffset.add(this.moveRight);
+    if (this.pressedKeys.has('KeyA')) this.moveOffset.sub(this.moveRight);
+    if (this.moveOffset.lengthSq() < 1e-8) return;
+
+    this.moveOffset.normalize().multiplyScalar(MOVE_SPEED * delta);
+    this.camera.position.add(this.moveOffset);
+    this.controls.target.add(this.moveOffset);
+  }
+
   private updateHud(): void {
     const enabled = [...this.features.features.values()].filter((f) => f.enabled).map((f) => f.name);
     this.hudPipeline.textContent = enabled.length
       ? `当前：${enabled.join(' + ')}`
       : '当前：默认基础渲染管线';
+  }
+
+  private isTypingTarget(target: EventTarget | null): boolean {
+    if (!(target instanceof HTMLElement)) return false;
+    const tag = target.tagName;
+    return tag === 'INPUT' || tag === 'TEXTAREA' || target.isContentEditable;
+  }
+
+  private onKeyDown(event: KeyboardEvent): void {
+    if (this.isTypingTarget(event.target) || !MOVE_KEYS.has(event.code)) return;
+    event.preventDefault();
+    this.pressedKeys.add(event.code);
+  }
+
+  private onKeyUp(event: KeyboardEvent): void {
+    this.pressedKeys.delete(event.code);
+  }
+
+  private onContextMenu(event: Event): void {
+    event.preventDefault();
   }
 
   private onResize(): void {
@@ -149,6 +218,9 @@ export class App {
   dispose(): void {
     cancelAnimationFrame(this.raf);
     window.removeEventListener('resize', this.onResize);
+    window.removeEventListener('keydown', this.onKeyDown);
+    window.removeEventListener('keyup', this.onKeyUp);
+    this.renderer.domElement.removeEventListener('contextmenu', this.onContextMenu);
     this.features.dispose();
     this.controls.dispose();
     this.renderer.dispose();
